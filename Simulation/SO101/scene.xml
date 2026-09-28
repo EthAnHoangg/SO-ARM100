@@ -20,5 +20,46 @@
     <worldbody>
         <light pos="0 0 3.5" dir="0 0 -1" directional="true" />
         <geom name="floor" size="0 0 0.05" pos="0 0 0" type="plane" material="groundplane" />
+
+        <!-- Supply zone: fixed block spawn point (Week 1 Day 4 — no randomisation yet) -->
+        <site name="supply_zone" pos="0.16 -0.18 0.002" size="0.005" rgba="1 1 1 1" />
+        <geom name="supply_zone_pad" type="box" size="0.035 0.035 0.001" pos="0.16 -0.18 0.001"
+            rgba="0.6 0.6 0.6 1" contype="0" conaffinity="0" />
+
+        <!-- Shelf zones: one per category, positions ~0.25-0.28m from the base (within
+             estimated reach). Colour-coded to match the block that belongs there. -->
+        <site name="shelf_zone_red" pos="0.24 -0.10 0.002" size="0.005" rgba="1 0 0 1" />
+        <geom name="shelf_zone_red_pad" type="box" size="0.035 0.035 0.001" pos="0.24 -0.10 0.001"
+            rgba="1 0 0 0.5" contype="0" conaffinity="0" />
+
+        <site name="shelf_zone_green" pos="0.27 0.02 0.002" size="0.005" rgba="0 1 0 1" />
+        <geom name="shelf_zone_green_pad" type="box" size="0.035 0.035 0.001" pos="0.27 0.02 0.001"
+            rgba="0 1 0 0.5" contype="0" conaffinity="0" />
+
+        <site name="shelf_zone_blue" pos="0.24 0.14 0.002" size="0.005" rgba="0 0 1 1" />
+        <geom name="shelf_zone_blue_pad" type="box" size="0.035 0.035 0.001" pos="0.24 0.14 0.001"
+            rgba="0 0 1 0.5" contype="0" conaffinity="0" />
+
+        <!-- Blocks: free bodies, one per category. Category is tracked on the Python side
+             (body name -> category), not read from the XML. block_red starts in the supply
+             zone; the other two sit in a staging area until reset() logic (Day 5-7) moves
+             them in. -->
+        <body name="block_red" pos="0.16 -0.18 0.016">
+            <freejoint name="block_red_freejoint" />
+            <geom name="block_red_geom" type="box" size="0.015 0.015 0.015" rgba="1 0 0 1"
+                mass="0.01" friction="1 0.005 0.0001" />
+        </body>
+
+        <body name="block_green" pos="0.05 -0.30 0.016">
+            <freejoint name="block_green_freejoint" />
+            <geom name="block_green_geom" type="box" size="0.015 0.015 0.015" rgba="0 1 0 1"
+                mass="0.01" friction="1 0.005 0.0001" />
+        </body>
+
+        <body name="block_blue" pos="0.05 -0.36 0.016">
+            <freejoint name="block_blue_freejoint" />
+            <geom name="block_blue_geom" type="box" size="0.015 0.015 0.015" rgba="0 0 1 1"
+                mass="0.01" friction="1 0.005 0.0001" />
+        </body>
     </worldbody>
 </mujoco>
