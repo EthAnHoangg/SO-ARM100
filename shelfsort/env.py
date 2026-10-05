@@ -40,15 +40,16 @@ class ShelfSortEnv(gym.Env):
     MAX_EPISODE_STEPS = 200
     BLOCK_REST_Z = 0.016  # block centre height when resting on the table
     SUCCESS_XY_TOLERANCE = 0.03  # metres, block-to-shelf-zone planar distance counted as "placed"
+    SUCCESS_Z_TOLERANCE = 0.005  # metres above resting height; a block carried over the zone is not placed
 
     REWARD_MODES = ("sparse", "dense")
     PLACEMENT_REWARD = 1.0  # identical in both modes so shaping is the only difference
     REACH_WEIGHT = 2.0  # per metre of EE-to-block distance closed (kept well under the placement bonus)
     TRANSPORT_WEIGHT = 5.0  # per metre of block-to-shelf distance closed while held
     GRASP_BONUS = 0.5  # paid once per episode, on first grasp
-    LIFT_WEIGHT = 10.0  # per metre of block height gained (capped at LIFT_CAP); dropping it costs the same
-    LIFT_CAP = 0.05  # metres above the table beyond which extra height earns nothing
-    HOLD_BONUS = 0.002  # per step while grasped; 200 steps pays 0.4, kept well under the placement bonus
+    LIFT_WEIGHT = 10.0  # per metre the block's lift moves toward the desired lift
+    LIFT_CAP = 0.05  # desired lift while far from the shelf zone; extra height earns nothing
+    LOWER_RAMP = 0.05  # metres beyond SUCCESS_XY_TOLERANCE over which the desired lift ramps down to 0
     STEP_PENALTY = 0.001
 
     APPROACH_DIR = np.array([0.0, 0.0, -1.0])  # desired world direction of the gripper approach axis
@@ -70,14 +71,14 @@ class ShelfSortEnv(gym.Env):
         self.data = mujoco.MjData(self.model)
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float32)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(30,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(21,), dtype=np.float32)
 
         self._active_category = self.BLOCK_CATEGORIES[0]
         self._arm_ctrl_target = np.zeros(len(self.ARM_JOINT_NAMES))
         self._elapsed_steps = 0
         self._prev_reach_dist = 0.0
         self._prev_transport_dist = 0.0
-        self._prev_lift = 0.0
+        self._prev_height_potential = 0.0
         self._ever_grasped = False
 
         self._fixed_jaw_body_id = self.model.body(self.FIXED_JAW_BODY_NAME).id
@@ -113,7 +114,7 @@ class ShelfSortEnv(gym.Env):
         self._elapsed_steps = 0
         self._ever_grasped = False
         self._prev_reach_dist, self._prev_transport_dist = self._distances()
-        self._prev_lift = self._lift()
+        self._prev_height_potential = self._height_potential()
 
         return self._get_obs(), {}
 
@@ -177,22 +178,22 @@ class ShelfSortEnv(gym.Env):
         block_pos = self.data.body(self.BLOCK_BODY_NAMES[self._active_category]).xpos
         target_pos = self.SHELF_ZONE_POS[self._active_category]
         xy_distance = np.linalg.norm(block_pos[:2] - target_pos[:2])
-        success = bool(xy_distance < self.SUCCESS_XY_TOLERANCE)
         grasped = self._is_grasped()
+        resting = block_pos[2] < self.BLOCK_REST_Z + self.SUCCESS_Z_TOLERANCE
+        success = bool(xy_distance < self.SUCCESS_XY_TOLERANCE and resting and not grasped)
 
         reward = self.PLACEMENT_REWARD if success else 0.0
         if self.reward_mode == "dense":
             reward += self.REACH_WEIGHT * (self._prev_reach_dist - reach_dist)
-            lift = self._lift()
-            reward += self.LIFT_WEIGHT * (lift - self._prev_lift)
+            height_potential = self._height_potential()
+            reward += self.LIFT_WEIGHT * (height_potential - self._prev_height_potential)
             if grasped:
-                reward += self.HOLD_BONUS
                 if not self._ever_grasped:
                     reward += self.GRASP_BONUS
                 reward += self.TRANSPORT_WEIGHT * (self._prev_transport_dist - transport_dist)
             reward -= self.STEP_PENALTY
         self._prev_reach_dist, self._prev_transport_dist = reach_dist, transport_dist
-        self._prev_lift = self._lift()
+        self._prev_height_potential = self._height_potential()
         self._ever_grasped = self._ever_grasped or grasped
 
         terminated = success
@@ -217,6 +218,18 @@ class ShelfSortEnv(gym.Env):
         z = self.data.body(self.BLOCK_BODY_NAMES[self._active_category]).xpos[2]
         return float(np.clip(z - self.BLOCK_REST_Z, 0.0, self.LIFT_CAP))
 
+    def _height_potential(self):
+        """Minus the gap between the block's lift and the lift wanted at its distance from the zone.
+
+        Far from the zone the block should be carried at LIFT_CAP; over the zone it should be down on
+        the table. A plain lift potential charged for lowering everywhere, so the policy carried the
+        block to the zone and held it there instead of putting it down.
+        """
+        block_xy = self.data.body(self.BLOCK_BODY_NAMES[self._active_category]).xpos[:2]
+        xy_distance = np.linalg.norm(block_xy - self.SHELF_ZONE_POS[self._active_category][:2])
+        desired = self.LIFT_CAP * np.clip((xy_distance - self.SUCCESS_XY_TOLERANCE) / self.LOWER_RAMP, 0.0, 1.0)
+        return -abs(self._lift() - float(desired))
+
     def _is_grasped(self):
         """True when the active block touches both the fixed and the moving jaw."""
         block_body_id = self.model.body(self.BLOCK_BODY_NAMES[self._active_category]).id
@@ -232,10 +245,9 @@ class ShelfSortEnv(gym.Env):
         qvel = np.array([self.data.joint(name).qvel[0] for name in self.ALL_JOINT_NAMES], dtype=np.float32)
         ee_pos = np.array(self.data.site(self.EE_SITE_NAME).xpos, dtype=np.float32)
         block_pos = np.array(self.data.body(self.BLOCK_BODY_NAMES[self._active_category]).xpos, dtype=np.float32)
+        # The active shelf position, not a colour one-hot: with a one-hot each colour was learned as
+        # a separate mode and one (green) collapsed to never grasping. A target position lets a single
+        # carry skill cover every colour.
+        target_pos = self.SHELF_ZONE_POS[self._active_category].astype(np.float32)
 
-        category_onehot = np.zeros(len(self.BLOCK_CATEGORIES), dtype=np.float32)
-        category_onehot[self.BLOCK_CATEGORIES.index(self._active_category)] = 1.0
-
-        shelf_positions = np.concatenate([self.SHELF_ZONE_POS[c] for c in self.BLOCK_CATEGORIES]).astype(np.float32)
-
-        return np.concatenate([qpos, qvel, ee_pos, block_pos, category_onehot, shelf_positions])
+        return np.concatenate([qpos, qvel, ee_pos, block_pos, target_pos])
