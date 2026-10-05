@@ -204,3 +204,36 @@ def test_env_passes_sb3_check_env():
     env = ShelfSortEnv()
 
     check_env(env, warn=True)
+
+
+def test_info_reports_active_category():
+    env = ShelfSortEnv()
+    env.reset(seed=0)
+
+    _, _, _, _, info = env.step(np.zeros(4, dtype=np.float32))
+
+    assert info["category"] == env._active_category
+
+
+def test_dense_reward_pays_for_lifting_the_block_and_sparse_does_not():
+    rewards = {}
+    for mode in ("sparse", "dense"):
+        env = ShelfSortEnv(reward_mode=mode)
+        env.reset(seed=0)
+        qpos = env.data.joint(env.BLOCK_FREEJOINT_NAMES[env._active_category]).qpos
+        qpos[2] += 0.03
+        mujoco.mj_forward(env.model, env.data)
+        rewards[mode] = env.step(np.zeros(4, dtype=np.float32))[1]
+
+    assert rewards["sparse"] == 0.0
+    assert rewards["dense"] > 0.1
+
+
+def test_lift_term_is_capped():
+    env = ShelfSortEnv(reward_mode="dense")
+    env.reset(seed=0)
+    qpos = env.data.joint(env.BLOCK_FREEJOINT_NAMES[env._active_category]).qpos
+    qpos[2] += 0.5
+    mujoco.mj_forward(env.model, env.data)
+
+    assert env._lift() == env.LIFT_CAP

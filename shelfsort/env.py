@@ -38,6 +38,7 @@ class ShelfSortEnv(gym.Env):
     EE_STEP_SIZE = 0.02  # metres of EE travel commanded by an action of magnitude 1
     N_SUBSTEPS = 5  # physics steps per env step, giving the position actuators time to respond
     MAX_EPISODE_STEPS = 200
+    BLOCK_REST_Z = 0.016  # block centre height when resting on the table
     SUCCESS_XY_TOLERANCE = 0.03  # metres, block-to-shelf-zone planar distance counted as "placed"
 
     REWARD_MODES = ("sparse", "dense")
@@ -45,6 +46,9 @@ class ShelfSortEnv(gym.Env):
     REACH_WEIGHT = 2.0  # per metre of EE-to-block distance closed (kept well under the placement bonus)
     TRANSPORT_WEIGHT = 5.0  # per metre of block-to-shelf distance closed while held
     GRASP_BONUS = 0.5  # paid once per episode, on first grasp
+    LIFT_WEIGHT = 10.0  # per metre of block height gained (capped at LIFT_CAP); dropping it costs the same
+    LIFT_CAP = 0.05  # metres above the table beyond which extra height earns nothing
+    HOLD_BONUS = 0.002  # per step while grasped; 200 steps pays 0.4, kept well under the placement bonus
     STEP_PENALTY = 0.001
 
     APPROACH_DIR = np.array([0.0, 0.0, -1.0])  # desired world direction of the gripper approach axis
@@ -73,6 +77,7 @@ class ShelfSortEnv(gym.Env):
         self._elapsed_steps = 0
         self._prev_reach_dist = 0.0
         self._prev_transport_dist = 0.0
+        self._prev_lift = 0.0
         self._ever_grasped = False
 
         self._fixed_jaw_body_id = self.model.body(self.FIXED_JAW_BODY_NAME).id
@@ -108,6 +113,7 @@ class ShelfSortEnv(gym.Env):
         self._elapsed_steps = 0
         self._ever_grasped = False
         self._prev_reach_dist, self._prev_transport_dist = self._distances()
+        self._prev_lift = self._lift()
 
         return self._get_obs(), {}
 
@@ -177,17 +183,26 @@ class ShelfSortEnv(gym.Env):
         reward = self.PLACEMENT_REWARD if success else 0.0
         if self.reward_mode == "dense":
             reward += self.REACH_WEIGHT * (self._prev_reach_dist - reach_dist)
+            lift = self._lift()
+            reward += self.LIFT_WEIGHT * (lift - self._prev_lift)
             if grasped:
+                reward += self.HOLD_BONUS
                 if not self._ever_grasped:
                     reward += self.GRASP_BONUS
                 reward += self.TRANSPORT_WEIGHT * (self._prev_transport_dist - transport_dist)
             reward -= self.STEP_PENALTY
         self._prev_reach_dist, self._prev_transport_dist = reach_dist, transport_dist
+        self._prev_lift = self._lift()
         self._ever_grasped = self._ever_grasped or grasped
 
         terminated = success
         truncated = self._elapsed_steps >= self.MAX_EPISODE_STEPS
-        info = {"success": success, "grasped": grasped, "ever_grasped": self._ever_grasped}
+        info = {
+            "success": success,
+            "grasped": grasped,
+            "ever_grasped": self._ever_grasped,
+            "category": self._active_category,
+        }
 
         return self._get_obs(), float(reward), terminated, truncated, info
 
@@ -196,6 +211,11 @@ class ShelfSortEnv(gym.Env):
         ee_pos = self.data.site(self.EE_SITE_NAME).xpos
         target_pos = self.SHELF_ZONE_POS[self._active_category]
         return float(np.linalg.norm(ee_pos - block_pos)), float(np.linalg.norm(block_pos - target_pos))
+
+    def _lift(self):
+        """Height of the active block above its resting height, capped at LIFT_CAP."""
+        z = self.data.body(self.BLOCK_BODY_NAMES[self._active_category]).xpos[2]
+        return float(np.clip(z - self.BLOCK_REST_Z, 0.0, self.LIFT_CAP))
 
     def _is_grasped(self):
         """True when the active block touches both the fixed and the moving jaw."""
