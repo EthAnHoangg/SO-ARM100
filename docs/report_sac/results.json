@@ -1,0 +1,76 @@
+{
+  "dense": {
+    "training": {
+      "total_steps": 2999672,
+      "success_mean": 1.0,
+      "success_per_colour": {
+        "red": 1.0,
+        "green": 1.0,
+        "blue": 1.0
+      },
+      "grasp_final": 1.0,
+      "grasp_peak": 1.0,
+      "first_success_step": 413600,
+      "steps_to_50pct": {
+        "red": 615844,
+        "green": 577680,
+        "blue": 694492
+      },
+      "mean_episode_length": 52.16999816894531
+    },
+    "final_policy": {
+      "deterministic": {
+        "mean_of_colours": 1.0,
+        "per_colour": {
+          "red": 1.0,
+          "green": 1.0,
+          "blue": 1.0
+        },
+        "episodes_per_colour": {
+          "red": 99,
+          "green": 95,
+          "blue": 106
+        },
+        "mean_steps_to_place": {
+          "red": 34.0,
+          "green": 51.0,
+          "blue": 61.0
+        },
+        "grasp_rate": 1.0
+      },
+      "stochastic": {
+        "mean_of_colours": 0.9937106918238993,
+        "per_colour": {
+          "red": 1.0,
+          "green": 1.0,
+          "blue": 0.9811320754716981
+        },
+        "episodes_per_colour": {
+          "red": 99,
+          "green": 95,
+          "blue": 106
+        },
+        "mean_steps_to_place": {
+          "red": 36.08080808080808,
+          "green": 52.863157894736844,
+          "blue": 61.43269230769231
+        },
+        "grasp_rate": 1.0
+      }
+    },
+    "checkpoint_scan": {
+      "250000": 0.0,
+      "500000": 0.0,
+      "750000": 0.6666666666666666,
+      "1000000": 0.6666666666666666,
+      "1250000": 1.0,
+      "1500000": 0.6666666666666666,
+      "1750000": 1.0,
+      "2000000": 0.6666666666666666,
+      "2250000": 1.0,
+      "2500000": 1.0,
+      "2750000": 1.0,
+      "3000000": 1.0
+    }
+  }
+}
