@@ -23,6 +23,13 @@ def test_load_policy_finds_vecnormalize_next_to_model(tmp_path):
     assert norm is not None and not norm.training
 
 
+def test_load_policy_finds_vecnormalize_in_results_layout(tmp_path):
+    path = _tiny_model(tmp_path, normalize=True)
+    (tmp_path / "m_vecnormalize.pkl").rename(tmp_path / "vecnormalize.pkl")
+    _, norm = load_policy(path)
+    assert norm is not None and not norm.training
+
+
 def test_evaluate_returns_per_colour_rates(tmp_path):
     path = _tiny_model(tmp_path, normalize=False)
     out = evaluate(path, LEVELS["L2"], deterministic=True, seeds=range(5000, 5006))

@@ -35,6 +35,8 @@ def load_policy(model_path):
     model_path = Path(model_path)
     model = PPO.load(model_path, device="cpu")
     stats_path = model_path.with_name(f"{model_path.stem}_vecnormalize.pkl")
+    if not stats_path.exists():  # results/generalisation/<run>/ stores model.zip beside vecnormalize.pkl
+        stats_path = model_path.with_name("vecnormalize.pkl")
     if not stats_path.exists():
         if model.observation_space.shape == (27,):
             warnings.warn(f"no VecNormalize stats at {stats_path}; evaluating on raw observations")
