@@ -12,7 +12,7 @@ from stable_baselines3 import PPO, SAC
 
 from shelfsort.env import ShelfSortEnv
 
-EVAL_SEED_BASE = 100_000  # fixed so every policy is tested on the same episodes
+EVAL_SEED_BASE = 5_000  # matches the PPO evaluation episodes (5,000–5,299)
 
 
 def evaluate(model, reward_mode, episodes, deterministic, seed_base=EVAL_SEED_BASE):
@@ -30,9 +30,12 @@ def evaluate(model, reward_mode, episodes, deterministic, seed_base=EVAL_SEED_BA
         grasped.append(info["ever_grasped"])
         if info["success"]:
             steps[colour].append(t)
-    per_colour = {c: float(np.mean(success[c])) for c in ShelfSortEnv.BLOCK_CATEGORIES}
+    per_colour = {
+        c: float(np.mean(success[c])) if success[c] else None
+        for c in ShelfSortEnv.BLOCK_CATEGORIES
+    }
     return {
-        "mean_of_colours": float(np.mean(list(per_colour.values()))),
+        "mean_of_colours": float(np.mean([rate for rate in per_colour.values() if rate is not None])),
         "per_colour": per_colour,
         "episodes_per_colour": {c: len(success[c]) for c in ShelfSortEnv.BLOCK_CATEGORIES},
         "mean_steps_to_place": {c: float(np.mean(steps[c])) if steps[c] else None
@@ -53,7 +56,10 @@ def main():
     results = {}
     for mode in ("deterministic", "stochastic"):
         r = results[mode] = evaluate(model, args.reward_mode, args.episodes, mode == "deterministic")
-        colours = " / ".join(f"{c} {r['per_colour'][c]:.2f}" for c in ShelfSortEnv.BLOCK_CATEGORIES)
+        colours = " / ".join(
+            f"{c} {r['per_colour'][c]:.2f}" if r["per_colour"][c] is not None else f"{c} n/a"
+            for c in ShelfSortEnv.BLOCK_CATEGORIES
+        )
         print(f"{mode:13s} mean {r['mean_of_colours']:.2f} | {colours} | grasp {r['grasp_rate']:.2f}")
     if args.json:
         args.json.write_text(json.dumps(results, indent=2))
