@@ -14,21 +14,29 @@ def test_action_space_is_4d_box_in_unit_range():
     assert np.all(env.action_space.high == 1.0)
 
 
-def test_observation_space_is_21d_box():
+def test_observation_space_is_27d_box():
     env = ShelfSortEnv()
 
-    assert env.observation_space.shape == (21,)
+    assert env.observation_space.shape == (27,)
 
 
 @pytest.mark.parametrize("seed", [0, 1, 11])  # blue, green, red
-def test_observation_ends_with_active_shelf_position(seed):
+def test_observation_contains_active_shelf_position(seed):
     """The policy is told where to go, not which colour it holds: a colour one-hot let each
     colour be learned as a separate mode, and green's collapsed to never grasping."""
     env = ShelfSortEnv()
 
     obs, _ = env.reset(seed=seed)
 
-    np.testing.assert_allclose(obs[-3:], env.SHELF_ZONE_POS[env._active_category], atol=1e-6)
+    np.testing.assert_allclose(obs[18:21], env.active_zone_pos, atol=1e-6)
+
+
+def test_observation_ends_with_relative_vectors():
+    env = ShelfSortEnv(block_xy_range=0.03, arm_qpos_range=0.1, zone_xy_range=0.02)
+    obs, _ = env.reset(seed=5)
+    ee, block, target = obs[12:15], obs[15:18], obs[18:21]
+    np.testing.assert_allclose(obs[21:24], block - ee, atol=1e-6)
+    np.testing.assert_allclose(obs[24:27], target - block, atol=1e-6)
 
 
 def test_reset_returns_observation_matching_space():

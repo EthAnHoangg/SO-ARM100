@@ -84,7 +84,7 @@ class ShelfSortEnv(gym.Env):
         self.data = mujoco.MjData(self.model)
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float32)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(21,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(27,), dtype=np.float32)
 
         self._active_category = self.BLOCK_CATEGORIES[0]
         self._zone_pos = {c: pos.copy() for c, pos in self.SHELF_ZONE_POS.items()}
@@ -296,4 +296,5 @@ class ShelfSortEnv(gym.Env):
         # carry skill cover every colour.
         target_pos = self.active_zone_pos.astype(np.float32)
 
-        return np.concatenate([qpos, qvel, ee_pos, block_pos, target_pos])
+        # Relative vectors make the grasp and carry look the same wherever the block or zone starts.
+        return np.concatenate([qpos, qvel, ee_pos, block_pos, target_pos, block_pos - ee_pos, target_pos - block_pos])
