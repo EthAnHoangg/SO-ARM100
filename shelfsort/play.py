@@ -9,16 +9,16 @@ import time
 from pathlib import Path
 
 import mujoco.viewer
-from stable_baselines3 import PPO
 
 from shelfsort.env import ShelfSortEnv
+from shelfsort.eval_generalisation import load_policy
 
 
-def run_episode(env, model, deterministic, viewer=None):
+def run_episode(env, model, deterministic, viewer=None, norm=None):
     obs, _ = env.reset()
     done, total, info = False, 0.0, {}
     while not done and (viewer is None or viewer.is_running()):
-        action, _ = model.predict(obs, deterministic=deterministic)
+        action, _ = model.predict(norm.normalize_obs(obs) if norm is not None else obs, deterministic=deterministic)
         obs, reward, terminated, truncated, info = env.step(action)
         total += reward
         done = terminated or truncated
@@ -38,13 +38,13 @@ def main():
     args = parser.parse_args()
 
     env = ShelfSortEnv(reward_mode=args.reward_mode)
-    model = PPO.load(args.model)
+    model, norm = load_policy(args.model)
     deterministic = not args.stochastic
 
     successes = 0
     if args.no_viewer:
         for i in range(args.episodes):
-            total, info = run_episode(env, model, deterministic)
+            total, info = run_episode(env, model, deterministic, norm=norm)
             successes += int(info["success"])
             print(f"episode {i}: return={total:.2f} success={info['success']} grasped={info['ever_grasped']}")
     else:
@@ -52,7 +52,7 @@ def main():
             for i in range(args.episodes):
                 if not viewer.is_running():
                     break
-                total, info = run_episode(env, model, deterministic, viewer)
+                total, info = run_episode(env, model, deterministic, viewer, norm)
                 successes += int(info["success"])
                 print(f"episode {i}: return={total:.2f} success={info['success']} grasped={info['ever_grasped']}")
     print(f"success rate: {successes}/{args.episodes}")
