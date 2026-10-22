@@ -334,3 +334,78 @@ def test_lift_term_is_capped():
     mujoco.mj_forward(env.model, env.data)
 
     assert env._lift() == env.LIFT_CAP
+
+
+L2 = dict(block_xy_range=0.03, arm_qpos_range=0.1)
+
+
+def test_zero_ranges_reproduce_fixed_reset():
+    env = ShelfSortEnv(block_xy_range=0.0, arm_qpos_range=0.0, zone_xy_range=0.0)
+    for seed in range(5):
+        env.reset(seed=seed)
+        np.testing.assert_allclose(env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos, env.SUPPLY_POS, atol=1e-6)
+        np.testing.assert_allclose(env.active_zone_pos, env.SHELF_ZONE_POS[env._active_category])
+
+
+def test_randomised_block_stays_within_range_and_varies():
+    env = ShelfSortEnv(**L2)
+    offsets = []
+    for seed in range(50):
+        env.reset(seed=seed)
+        offsets.append(env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos[:2] - env.SUPPLY_POS[:2])
+    offsets = np.array(offsets)
+    assert np.all(np.abs(offsets) <= 0.03 + 1e-9)
+    assert offsets.std(axis=0).min() > 0.01
+
+
+def test_randomised_arm_pose_within_range_and_ctrl_matches():
+    env = ShelfSortEnv(**L2)
+    env.reset(seed=3)
+    q = np.array([env.data.joint(n).qpos[0] for n in env.ARM_JOINT_NAMES])
+    assert np.all(np.abs(q[:4] - env.READY_ARM_QPOS[:4]) <= 0.1 + 1e-9)
+    assert q[4] == env.READY_ARM_QPOS[4]
+    np.testing.assert_allclose(env._arm_ctrl_target, q)
+    np.testing.assert_allclose([env.data.actuator(n).ctrl[0] for n in env.ARM_JOINT_NAMES], q)
+
+
+def test_same_seed_gives_same_start():
+    a, b = ShelfSortEnv(**L2, zone_xy_range=0.02), ShelfSortEnv(**L2, zone_xy_range=0.02)
+    oa, _ = a.reset(seed=42)
+    ob, _ = b.reset(seed=42)
+    np.testing.assert_array_equal(oa, ob)
+
+
+def test_randomisation_scale_zero_disables_ranges():
+    env = ShelfSortEnv(**L2, zone_xy_range=0.02)
+    env.set_randomization_scale(0.0)
+    env.reset(seed=7)
+    np.testing.assert_allclose(env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos, env.SUPPLY_POS, atol=1e-6)
+    np.testing.assert_allclose(env.active_zone_pos, env.SHELF_ZONE_POS[env._active_category])
+
+
+def test_block_offset_option_overrides_random_draw():
+    env = ShelfSortEnv(**L2)
+    env.reset(seed=0, options={"block_offset": (0.04, -0.02)})
+    np.testing.assert_allclose(env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos[:2], env.SUPPLY_POS[:2] + [0.04, -0.02], atol=1e-6)
+
+
+def test_randomised_reset_rests_block_on_table():
+    env = ShelfSortEnv(**L2, zone_xy_range=0.02)
+    for seed in range(20):
+        env.reset(seed=seed)
+        for _ in range(10):
+            env.step(np.array([0.0, 0.0, 0.0, 1.0], dtype=np.float32))
+        z = env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos[2]
+        assert abs(z - env.BLOCK_REST_Z) < 0.002
+
+
+def test_success_uses_jittered_zone():
+    env = ShelfSortEnv(reward_mode="dense", zone_xy_range=0.02)
+    env.reset(seed=1)
+    assert not np.allclose(env.active_zone_pos, env.SHELF_ZONE_POS[env._active_category])
+    fj = env.data.joint(env.BLOCK_FREEJOINT_NAMES[env._active_category])
+    fj.qpos[:3] = [*env.active_zone_pos[:2], env.BLOCK_REST_Z]
+    fj.qvel[:] = 0.0
+    mujoco.mj_forward(env.model, env.data)
+    _, _, terminated, _, info = env.step(np.array([0.0, 0.0, 0.0, 1.0], dtype=np.float32))
+    assert info["success"] and terminated
