@@ -80,10 +80,8 @@ def test_ee_converges_to_a_reachable_target_without_oscillating():
     assert np.linalg.norm(target - env.data.site(env.EE_SITE_NAME).xpos) < 0.01
 
 
-def test_scripted_pinch_grasps_and_lifts_the_block():
-    """The gripper must be physically able to pick the block up, or no reward can teach it to."""
-    env = ShelfSortEnv()
-    env.reset(seed=0)
+def _scripted_pinch(env):
+    """Top-down pinch from the current start: hover, re-aim, descend, close, lift. Returns the last info."""
     block = env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos.copy()
     ee = lambda: env.data.site(env.EE_SITE_NAME).xpos.copy()
 
@@ -107,7 +105,29 @@ def test_scripted_pinch_grasps_and_lifts_the_block():
         env.step(np.array([0.0, 0.0, 0.0, close], dtype=np.float32))
     for _ in range(15):
         _, _, _, _, info = env.step(np.array([0.0, 0.0, 0.5, close], dtype=np.float32))
+    return info
 
+
+def test_scripted_pinch_grasps_and_lifts_the_block():
+    """The gripper must be physically able to pick the block up, or no reward can teach it to."""
+    env = ShelfSortEnv()
+    env.reset(seed=0)
+
+    info = _scripted_pinch(env)
+
+    assert info["grasped"]
+    assert env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos[2] > 0.04
+
+
+CORNERS = [(dx, dy) for dx in (-0.03, 0.03) for dy in (-0.03, 0.03)]
+
+
+@pytest.mark.parametrize("seed", range(12))
+def test_scripted_pinch_works_from_randomised_starts(seed):
+    env = ShelfSortEnv(block_xy_range=0.03, arm_qpos_range=0.1)
+    options = {"block_offset": CORNERS[seed]} if seed < len(CORNERS) else None
+    env.reset(seed=seed, options=options)
+    info = _scripted_pinch(env)
     assert info["grasped"]
     assert env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos[2] > 0.04
 
