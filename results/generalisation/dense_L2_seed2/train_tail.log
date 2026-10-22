@@ -1,0 +1,200 @@
+|    learning_rate        | 0.0003     |
+|    loss                 | -0.00205   |
+|    n_updates            | 6040       |
+|    policy_gradient_loss | -0.00493   |
+|    std                  | 0.12       |
+|    value_loss           | 0.0194     |
+----------------------------------------
+-----------------------------------------
+| curriculum/             |             |
+|    scale                | 1           |
+| rollout/                |             |
+|    ep_len_mean          | 59.8        |
+|    ep_rew_mean          | 3.21        |
+|    grasp_blue           | 1           |
+|    grasp_green          | 1           |
+|    grasp_rate           | 1           |
+|    grasp_red            | 1           |
+|    success_blue         | 0.98        |
+|    success_green        | 0.98        |
+|    success_rate         | 0.987       |
+|    success_red          | 1           |
+| time/                   |             |
+|    fps                  | 787         |
+|    iterations           | 606         |
+|    time_elapsed         | 6302        |
+|    total_timesteps      | 4964352     |
+| train/                  |             |
+|    approx_kl            | 0.105542436 |
+|    clip_fraction        | 0.543       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | 2.78        |
+|    explained_variance   | 0.966       |
+|    learning_rate        | 0.0003      |
+|    loss                 | -0.0115     |
+|    n_updates            | 6050        |
+|    policy_gradient_loss | -0.00764    |
+|    std                  | 0.12        |
+|    value_loss           | 0.017       |
+-----------------------------------------
+----------------------------------------
+| curriculum/             |            |
+|    scale                | 1          |
+| rollout/                |            |
+|    ep_len_mean          | 59.8       |
+|    ep_rew_mean          | 3.12       |
+|    grasp_blue           | 1          |
+|    grasp_green          | 1          |
+|    grasp_rate           | 1          |
+|    grasp_red            | 1          |
+|    success_blue         | 0.96       |
+|    success_green        | 1          |
+|    success_rate         | 0.98       |
+|    success_red          | 0.98       |
+| time/                   |            |
+|    fps                  | 787        |
+|    iterations           | 607        |
+|    time_elapsed         | 6312       |
+|    total_timesteps      | 4972544    |
+| train/                  |            |
+|    approx_kl            | 0.11214696 |
+|    clip_fraction        | 0.551      |
+|    clip_range           | 0.2        |
+|    entropy_loss         | 2.8        |
+|    explained_variance   | 0.947      |
+|    learning_rate        | 0.0003     |
+|    loss                 | -0.0353    |
+|    n_updates            | 6060       |
+|    policy_gradient_loss | -0.000581  |
+|    std                  | 0.12       |
+|    value_loss           | 0.026      |
+----------------------------------------
+----------------------------------------
+| curriculum/             |            |
+|    scale                | 1          |
+| rollout/                |            |
+|    ep_len_mean          | 58.3       |
+|    ep_rew_mean          | 3.04       |
+|    grasp_blue           | 1          |
+|    grasp_green          | 1          |
+|    grasp_rate           | 1          |
+|    grasp_red            | 1          |
+|    success_blue         | 0.94       |
+|    success_green        | 1          |
+|    success_rate         | 0.98       |
+|    success_red          | 1          |
+| time/                   |            |
+|    fps                  | 787        |
+|    iterations           | 608        |
+|    time_elapsed         | 6323       |
+|    total_timesteps      | 4980736    |
+| train/                  |            |
+|    approx_kl            | 0.11962657 |
+|    clip_fraction        | 0.552      |
+|    clip_range           | 0.2        |
+|    entropy_loss         | 2.83       |
+|    explained_variance   | 0.947      |
+|    learning_rate        | 0.0003     |
+|    loss                 | -0.0437    |
+|    n_updates            | 6070       |
+|    policy_gradient_loss | -0.00329   |
+|    std                  | 0.118      |
+|    value_loss           | 0.023      |
+----------------------------------------
+-----------------------------------------
+| curriculum/             |             |
+|    scale                | 1           |
+| rollout/                |             |
+|    ep_len_mean          | 58.4        |
+|    ep_rew_mean          | 3.08        |
+|    grasp_blue           | 1           |
+|    grasp_green          | 1           |
+|    grasp_rate           | 1           |
+|    grasp_red            | 1           |
+|    success_blue         | 0.94        |
+|    success_green        | 0.96        |
+|    success_rate         | 0.967       |
+|    success_red          | 1           |
+| time/                   |             |
+|    fps                  | 787         |
+|    iterations           | 609         |
+|    time_elapsed         | 6333        |
+|    total_timesteps      | 4988928     |
+| train/                  |             |
+|    approx_kl            | 0.112999886 |
+|    clip_fraction        | 0.553       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | 2.87        |
+|    explained_variance   | 0.943       |
+|    learning_rate        | 0.0003      |
+|    loss                 | -0.034      |
+|    n_updates            | 6080        |
+|    policy_gradient_loss | 0.00153     |
+|    std                  | 0.117       |
+|    value_loss           | 0.0258      |
+-----------------------------------------
+----------------------------------------
+| curriculum/             |            |
+|    scale                | 1          |
+| rollout/                |            |
+|    ep_len_mean          | 62.5       |
+|    ep_rew_mean          | 3.14       |
+|    grasp_blue           | 1          |
+|    grasp_green          | 1          |
+|    grasp_rate           | 1          |
+|    grasp_red            | 1          |
+|    success_blue         | 0.96       |
+|    success_green        | 1          |
+|    success_rate         | 0.973      |
+|    success_red          | 0.96       |
+| time/                   |            |
+|    fps                  | 787        |
+|    iterations           | 610        |
+|    time_elapsed         | 6343       |
+|    total_timesteps      | 4997120    |
+| train/                  |            |
+|    approx_kl            | 0.15635224 |
+|    clip_fraction        | 0.566      |
+|    clip_range           | 0.2        |
+|    entropy_loss         | 2.85       |
+|    explained_variance   | 0.942      |
+|    learning_rate        | 0.0003     |
+|    loss                 | 0.0602     |
+|    n_updates            | 6090       |
+|    policy_gradient_loss | -0.00179   |
+|    std                  | 0.119      |
+|    value_loss           | 0.0209     |
+----------------------------------------
+----------------------------------------
+| curriculum/             |            |
+|    scale                | 1          |
+| rollout/                |            |
+|    ep_len_mean          | 62.9       |
+|    ep_rew_mean          | 3.07       |
+|    grasp_blue           | 1          |
+|    grasp_green          | 1          |
+|    grasp_rate           | 1          |
+|    grasp_red            | 1          |
+|    success_blue         | 0.9        |
+|    success_green        | 1          |
+|    success_rate         | 0.96       |
+|    success_red          | 0.98       |
+| time/                   |            |
+|    fps                  | 787        |
+|    iterations           | 611        |
+|    time_elapsed         | 6354       |
+|    total_timesteps      | 5005312    |
+| train/                  |            |
+|    approx_kl            | 0.14211352 |
+|    clip_fraction        | 0.57       |
+|    clip_range           | 0.2        |
+|    entropy_loss         | 2.81       |
+|    explained_variance   | 0.957      |
+|    learning_rate        | 0.0003     |
+|    loss                 | 0.0233     |
+|    n_updates            | 6100       |
+|    policy_gradient_loss | 0.000386   |
+|    std                  | 0.12       |
+|    value_loss           | 0.0209     |
+----------------------------------------
+fps: 787 (5005312 timesteps in 6359 s)
