@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 
 import mujoco.viewer
-from stable_baselines3 import PPO
+from stable_baselines3 import PPO, SAC
 
 from shelfsort.env import ShelfSortEnv
 
@@ -38,7 +38,7 @@ def main():
     args = parser.parse_args()
 
     env = ShelfSortEnv(reward_mode=args.reward_mode)
-    model = PPO.load(args.model)
+    model = (SAC if "_sac" in args.model.name else PPO).load(args.model)
     deterministic = not args.stochastic
 
     successes = 0

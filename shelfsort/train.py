@@ -1,14 +1,25 @@
-"""Train PPO on ShelfSortEnv. Usage: uv run python -m shelfsort.train --reward-mode dense --timesteps 50000"""
+"""Train PPO or SAC on ShelfSortEnv. Usage: uv run python -m shelfsort.train --reward-mode dense --algo sac --timesteps 50000"""
 import argparse
+import os
 from collections import deque
 from pathlib import Path
 
+# Each SubprocVecEnv worker would otherwise start a full pool of BLAS/torch threads, which
+# oversubscribes the CPU badly enough to freeze the machine.
+for _var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
+    os.environ.setdefault(_var, "1")
+
 import numpy as np
-from stable_baselines3 import PPO
-from stable_baselines3.common.callbacks import BaseCallback
+import torch
+from stable_baselines3 import PPO, SAC
+from stable_baselines3.common.callbacks import BaseCallback, CallbackList, CheckpointCallback
+from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.vec_env import SubprocVecEnv
 
 from shelfsort.env import ShelfSortEnv
+
+ALGOS = {"ppo": PPO, "sac": SAC}
 
 
 class SuccessLogger(BaseCallback):
@@ -45,15 +56,29 @@ class SuccessLogger(BaseCallback):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--reward-mode", choices=ShelfSortEnv.REWARD_MODES, default="sparse")
+    parser.add_argument("--algo", choices=ALGOS, default="ppo")
     parser.add_argument("--timesteps", type=int, default=20_000)
+    parser.add_argument("--n-envs", type=int, default=1, help="parallel environments (SAC trains faster with 4)")
+    parser.add_argument("--checkpoint-every", type=int, default=0, help="env steps between saved checkpoints, 0 = off")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--out", type=Path, default=Path("runs"))
     args = parser.parse_args()
+    torch.set_num_threads(2)
 
-    run_name = f"{args.reward_mode}_seed{args.seed}"
-    env = Monitor(ShelfSortEnv(reward_mode=args.reward_mode))
-    model = PPO("MlpPolicy", env, seed=args.seed, verbose=1, tensorboard_log=str(args.out / "tb"))
-    model.learn(total_timesteps=args.timesteps, callback=SuccessLogger(), tb_log_name=run_name)
+    # PPO keeps the original run name so existing checkpoints and TensorBoard logs still line up.
+    run_name = f"{args.reward_mode}_seed{args.seed}" + ("_sac" if args.algo == "sac" else "")
+    if args.n_envs > 1:
+        env = make_vec_env(ShelfSortEnv, n_envs=args.n_envs, seed=args.seed, vec_env_cls=SubprocVecEnv,
+                           env_kwargs={"reward_mode": args.reward_mode})
+    else:
+        env = Monitor(ShelfSortEnv(reward_mode=args.reward_mode))
+    model = ALGOS[args.algo]("MlpPolicy", env, seed=args.seed, verbose=1, tensorboard_log=str(args.out / "tb"))
+
+    callbacks = [SuccessLogger()]
+    if args.checkpoint_every:
+        callbacks.append(CheckpointCallback(save_freq=max(args.checkpoint_every // args.n_envs, 1),
+                                            save_path=str(args.out / "checkpoints" / run_name), name_prefix=run_name))
+    model.learn(total_timesteps=args.timesteps, callback=CallbackList(callbacks), tb_log_name=run_name)
     model.save(args.out / "models" / run_name)
 
 
