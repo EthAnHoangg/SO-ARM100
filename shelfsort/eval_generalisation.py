@@ -5,12 +5,13 @@ Usage: uv run python -m shelfsort.eval_generalisation --model runs/gen/models/de
 import argparse
 import json
 import warnings
+import zipfile
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
 import torch
-from stable_baselines3 import PPO
+from stable_baselines3 import PPO, SAC
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
 from shelfsort.env import ShelfSortEnv
@@ -26,6 +27,13 @@ RADII = (0.01, 0.02, 0.03, 0.04, 0.05)
 FIRST_SEED = 5000
 
 
+def _algo_of(model_path):
+    """SAC and PPO zips are not interchangeable, so read the saved policy class to pick the loader."""
+    with zipfile.ZipFile(model_path) as zf:
+        data = json.loads(zf.read("data"))
+    return SAC if data["policy_class"].get("__module__", "").endswith(".sac.policies") else PPO
+
+
 def load_policy(model_path):
     """Loads the model and, if saved next to it, its VecNormalize stats frozen for evaluation.
 
@@ -33,7 +41,7 @@ def load_policy(model_path):
     without stats gets a warning (models trained without --normalize are valid).
     """
     model_path = Path(model_path)
-    model = PPO.load(model_path, device="cpu")
+    model = _algo_of(model_path).load(model_path, device="cpu")
     stats_path = model_path.with_name(f"{model_path.stem}_vecnormalize.pkl")
     if not stats_path.exists():  # results/generalisation/<run>/ stores model.zip beside vecnormalize.pkl
         stats_path = model_path.with_name("vecnormalize.pkl")

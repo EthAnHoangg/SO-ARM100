@@ -1,5 +1,5 @@
 import numpy as np
-from stable_baselines3 import PPO
+from stable_baselines3 import PPO, SAC
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
 from shelfsort.env import ShelfSortEnv
@@ -36,6 +36,14 @@ def test_evaluate_returns_per_colour_rates(tmp_path):
     assert set(out["per_colour"]) == set(ShelfSortEnv.BLOCK_CATEGORIES)
     assert 0.0 <= out["mean"] <= 1.0 and 0.0 <= out["grasp"] <= 1.0
     assert sum(out["episodes_per_colour"].values()) == 6
+
+
+def test_load_policy_loads_sac_models(tmp_path):
+    model = SAC("MlpPolicy", ShelfSortEnv(reward_mode="dense"), learning_starts=16, device="cpu")
+    model.learn(32)
+    model.save(tmp_path / "sac")
+    loaded, _ = load_policy(tmp_path / "sac.zip")
+    assert isinstance(loaded, SAC)
 
 
 def test_evaluate_radius_sweep_places_block_at_radius(tmp_path, monkeypatch):
