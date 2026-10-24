@@ -1,0 +1,317 @@
+[
+  {
+    "name": "L0",
+    "mode": "det",
+    "mean": 1.0,
+    "per_colour": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 49.0,
+      "green": 66.0,
+      "blue": 79.0
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L0",
+    "mode": "stoch",
+    "mean": 0.9867907702972363,
+    "per_colour": {
+      "red": 0.9811320754716981,
+      "green": 0.9887640449438202,
+      "blue": 0.9904761904761905
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 52.81730769230769,
+      "green": 69.07954545454545,
+      "blue": 77.52884615384616
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L1",
+    "mode": "det",
+    "mean": 0.8930948847633181,
+    "per_colour": {
+      "red": 0.8773584905660378,
+      "green": 0.8876404494382022,
+      "blue": 0.9142857142857143
+    },
+    "grasp": 0.9966666666666667,
+    "mean_steps_to_place": {
+      "red": 52.645161290322584,
+      "green": 68.88607594936708,
+      "blue": 79.42708333333333
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L1",
+    "mode": "stoch",
+    "mean": 0.9364379431371163,
+    "per_colour": {
+      "red": 0.9433962264150944,
+      "green": 0.9325842696629213,
+      "blue": 0.9333333333333333
+    },
+    "grasp": 0.9966666666666667,
+    "mean_steps_to_place": {
+      "red": 53.58,
+      "green": 70.855421686747,
+      "blue": 80.10204081632654
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L2",
+    "mode": "det",
+    "mean": 0.9056735011155194,
+    "per_colour": {
+      "red": 0.9150943396226415,
+      "green": 0.8876404494382022,
+      "blue": 0.9142857142857143
+    },
+    "grasp": 0.99,
+    "mean_steps_to_place": {
+      "red": 50.7319587628866,
+      "green": 73.0,
+      "blue": 78.83333333333333
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L2",
+    "mode": "stoch",
+    "mean": 0.9133354196741944,
+    "per_colour": {
+      "red": 0.9622641509433962,
+      "green": 0.8539325842696629,
+      "blue": 0.9238095238095239
+    },
+    "grasp": 0.9966666666666667,
+    "mean_steps_to_place": {
+      "red": 54.09803921568628,
+      "green": 73.32894736842105,
+      "blue": 80.76288659793815
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L3",
+    "mode": "det",
+    "mean": 0.877453048917963,
+    "per_colour": {
+      "red": 0.9056603773584906,
+      "green": 0.8314606741573034,
+      "blue": 0.8952380952380953
+    },
+    "grasp": 0.9866666666666667,
+    "mean_steps_to_place": {
+      "red": 56.40625,
+      "green": 75.48648648648648,
+      "blue": 78.09574468085107
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L3",
+    "mode": "stoch",
+    "mean": 0.864844483479209,
+    "per_colour": {
+      "red": 0.8773584905660378,
+      "green": 0.8314606741573034,
+      "blue": 0.8857142857142857
+    },
+    "grasp": 0.9833333333333333,
+    "mean_steps_to_place": {
+      "red": 60.946236559139784,
+      "green": 73.17567567567568,
+      "blue": 83.03225806451613
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "OOD_wide",
+    "mode": "det",
+    "mean": 0.6385855281975698,
+    "per_colour": {
+      "red": 0.6320754716981132,
+      "green": 0.6741573033707865,
+      "blue": 0.6095238095238096
+    },
+    "grasp": 0.96,
+    "mean_steps_to_place": {
+      "red": 66.31343283582089,
+      "green": 82.13333333333334,
+      "blue": 86.1875
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "OOD_wide",
+    "mode": "stoch",
+    "mean": 0.6009311137358625,
+    "per_colour": {
+      "red": 0.5943396226415094,
+      "green": 0.6179775280898876,
+      "blue": 0.5904761904761905
+    },
+    "grasp": 0.94,
+    "mean_steps_to_place": {
+      "red": 62.26984126984127,
+      "green": 80.63636363636364,
+      "blue": 92.45161290322581
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.01",
+    "mode": "det",
+    "mean": 0.9686947918874992,
+    "per_colour": {
+      "red": 0.9622641509433962,
+      "green": 0.9438202247191011,
+      "blue": 1.0
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 48.68627450980392,
+      "green": 67.69047619047619,
+      "blue": 75.54285714285714
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.02",
+    "mode": "det",
+    "mean": 0.9723802120664534,
+    "per_colour": {
+      "red": 0.9811320754716981,
+      "green": 0.9550561797752809,
+      "blue": 0.9809523809523809
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 49.91346153846154,
+      "green": 68.23529411764706,
+      "blue": 75.59223300970874
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.03",
+    "mode": "det",
+    "mean": 0.9240605577260231,
+    "per_colour": {
+      "red": 0.9433962264150944,
+      "green": 0.8764044943820225,
+      "blue": 0.9523809523809523
+    },
+    "grasp": 0.9933333333333333,
+    "mean_steps_to_place": {
+      "red": 53.92,
+      "green": 69.47435897435898,
+      "blue": 77.29
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.04",
+    "mode": "det",
+    "mean": 0.8403693496337126,
+    "per_colour": {
+      "red": 0.8679245283018868,
+      "green": 0.7865168539325843,
+      "blue": 0.8666666666666667
+    },
+    "grasp": 0.9766666666666667,
+    "mean_steps_to_place": {
+      "red": 60.51086956521739,
+      "green": 83.97142857142858,
+      "blue": 80.43956043956044
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.05",
+    "mode": "det",
+    "mean": 0.7575584427821019,
+    "per_colour": {
+      "red": 0.7735849056603774,
+      "green": 0.7752808988764045,
+      "blue": 0.7238095238095238
+    },
+    "grasp": 0.9733333333333334,
+    "mean_steps_to_place": {
+      "red": 62.390243902439025,
+      "green": 77.7536231884058,
+      "blue": 89.59210526315789
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  }
+]
