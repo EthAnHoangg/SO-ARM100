@@ -187,3 +187,11 @@ Nothing to report: the scripted pinch grasped and lifted the block from all 12 r
   `<stem>_vecnormalize.pkl`, so the committed `<run>/model.zip` would have been run on raw observations with only a
   warning. It now falls back to `vecnormalize.pkl` in the same folder. All the evaluations above ran on
   `runs/gen/models/<run>.zip`, which has its stem-named stats file, so they weren't affected.
+- A second bug, fixed after every run above was trained and evaluated: `reset()` did not clip the arm noise to the
+  joint limits. `wrist_flex`'s ready angle (1.637) sits 0.021 rad under its limit (1.658), so ±0.1 rad noise started it
+  past the limit in about 37% of L2/L3 episodes (by up to 0.078 rad). The joint-limit constraint pushed it back inside
+  within about 4 steps, a transient about the size of the normal start-up settling, so the effect on these results is
+  likely small. But the first observation in those episodes was a pose the real arm cannot reach, and `wrist_flex`'s
+  effective range was about −0.1 to +0.021 rad rather than ±0.1. All six runs and their evaluations used the unclipped
+  starts; runs trained after the fix (including any SAC runs) use clipped starts, so they are not on exactly the same
+  start distribution.

@@ -386,6 +386,17 @@ def test_randomised_block_stays_within_range_and_varies():
     assert offsets.std(axis=0).min() > 0.01
 
 
+def test_randomised_arm_pose_respects_joint_limits():
+    """wrist_flex's ready angle sits 0.021 rad under its limit, so unclipped ±0.1 rad noise started
+    it past the limit in ~37% of episodes: an observation the real arm can never produce."""
+    env = ShelfSortEnv(**L2)
+    for seed in range(50):
+        env.reset(seed=seed)
+        for name in env.ARM_JOINT_NAMES:
+            lo, hi = env.model.joint(name).range
+            assert lo <= env.data.joint(name).qpos[0] <= hi, (seed, name)
+
+
 def test_randomised_arm_pose_within_range_and_ctrl_matches():
     env = ShelfSortEnv(**L2)
     env.reset(seed=3)

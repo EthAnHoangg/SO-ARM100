@@ -135,6 +135,8 @@ class ShelfSortEnv(gym.Env):
             block_offset = scale * self.block_xy_range * block_noise
         arm_qpos = self.READY_ARM_QPOS.copy()
         arm_qpos[: self.N_CONTROLLED_JOINTS] += scale * self.arm_qpos_range * arm_noise
+        # wrist_flex's ready angle is 0.021 rad under its limit; unclipped noise starts it past the limit.
+        arm_qpos = np.clip(arm_qpos, self._arm_joint_range[:, 0], self._arm_joint_range[:, 1])
 
         ready_qpos = np.append(arm_qpos, self.READY_GRIPPER_QPOS)
         for name, qpos in zip(self.ALL_JOINT_NAMES, ready_qpos):
