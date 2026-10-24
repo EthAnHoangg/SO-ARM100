@@ -28,7 +28,7 @@ linear curriculum from scale 0 to 1 over the first 2M steps, 27-D observation.
 
 ## 3. Per-run results
 
-The training levels are L2 for `dense_L2_*` and L3 for `dense_L3_seed0`. "Grasp" is the fraction of episodes in
+The training levels are L2 for `dense_L2_*` and L3 for `dense_L3_*`. "Grasp" is the fraction of episodes in
 which the block was ever held by both jaws. Steps to place counts successful episodes only.
 
 #### `dense_L2_seed0`
@@ -79,6 +79,30 @@ Radius sweep (det.): 1.00 / 1.00 / 0.99 / 0.96 / 0.91 for 1 / 2 / 3 / 4 / 5 cm; 
 
 Radius sweep (det.): 0.99 / 0.99 / 0.99 / 0.93 / 0.82 for 1 / 2 / 3 / 4 / 5 cm; grasp 1.00 / 1.00 / 1.00 / 1.00 / 0.95.
 
+#### `dense_L3_seed1`
+
+| Start condition | Det. | Stoch. | Grasp (det.) | Det. R / G / B | Det. steps to place R / G / B |
+|---|---|---|---|---|---|
+| L0 | 0.00 | 0.26 | 1.00 | 0.00 / 0.00 / 0.00 | – / – / – |
+| L1 | 0.29 | 0.32 | 0.99 | 0.69 / 0.00 / 0.17 | 44 / – / 149 |
+| L2 | 0.29 | 0.31 | 0.98 | 0.72 / 0.00 / 0.14 | 47 / – / 147 |
+| L3 | 0.26 | 0.28 | 0.98 | 0.58 / 0.00 / 0.19 | 41 / – / 144 |
+| OOD_wide | 0.21 | 0.25 | 0.89 | 0.42 / 0.03 / 0.18 | 43 / 164 / 140 |
+
+Radius sweep (det.): 0.30 / 0.31 / 0.31 / 0.21 / 0.20 for 1 / 2 / 3 / 4 / 5 cm; grasp 1.00 / 1.00 / 0.99 / 0.97 / 0.80.
+
+#### `dense_L3_seed2`
+
+| Start condition | Det. | Stoch. | Grasp (det.) | Det. R / G / B | Det. steps to place R / G / B |
+|---|---|---|---|---|---|
+| L0 | 1.00 | 0.99 | 1.00 | 1.00 / 1.00 / 1.00 | 49 / 66 / 79 |
+| L1 | 0.89 | 0.94 | 1.00 | 0.88 / 0.89 / 0.91 | 53 / 69 / 79 |
+| L2 | 0.91 | 0.91 | 0.99 | 0.92 / 0.89 / 0.91 | 51 / 73 / 79 |
+| L3 | 0.88 | 0.86 | 0.99 | 0.91 / 0.83 / 0.90 | 56 / 75 / 78 |
+| OOD_wide | 0.64 | 0.60 | 0.96 | 0.63 / 0.67 / 0.61 | 66 / 82 / 86 |
+
+Radius sweep (det.): 0.97 / 0.97 / 0.92 / 0.84 / 0.76 for 1 / 2 / 3 / 4 / 5 cm; grasp 1.00 / 1.00 / 0.99 / 0.98 / 0.97.
+
 
 ## 4. E2: three seeds trained on L2
 
@@ -99,12 +123,31 @@ Mean ± sample std (ddof = 1) of the per-colour-averaged success rate over seeds
 
 **Decision gate after E1:** the L2 deterministic mean of `dense_L2_seed0` was 0.65 (≥ 0.6), so the plan went to the
 seeds at 5M steps, with no 10M rerun. That figure passed the gate only because red and green were near 1.0; blue was
-0.00 (see §5).
+0.00 (see §6).
 
-## 5. What got better and what didn't
+## 5. E3: three seeds trained on L3
 
-- **Grasping from randomised starts is fixed.** Every run grasps in 0.95–1.00 of episodes at every level, against
-  0.26–0.31 for v6. At a 5 cm block radius, v6 grasped 0.05 of the time; every new run grasps at least 0.95.
+Same statistics as §4, over `dense_L3_seed0`, `dense_L3_seed1` and `dense_L3_seed2`. Seed 1 collapsed (see §6), so
+the std is large and the means sit well below the two healthy seeds.
+
+| Level | Det. mean ± std | Stoch. mean ± std | Det. per-seed (0 / 1 / 2) |
+|---|---|---|---|
+| L0 | 0.67 ± 0.58 | 0.74 ± 0.41 | 1.00 / 0.00 / 1.00 |
+| L1 | 0.72 ± 0.38 | 0.73 ± 0.36 | 0.97 / 0.29 / 0.89 |
+| L2 | 0.71 ± 0.37 | 0.72 ± 0.35 | 0.95 / 0.29 / 0.91 |
+| L3 | 0.68 ± 0.37 | 0.68 ± 0.34 | 0.91 / 0.26 / 0.88 |
+| OOD_wide | 0.53 ± 0.28 | 0.52 ± 0.25 | 0.74 / 0.21 / 0.64 |
+| radius_0.01 | 0.75 ± 0.40 | – | 0.99 / 0.30 / 0.97 |
+| radius_0.02 | 0.75 ± 0.39 | – | 0.99 / 0.31 / 0.97 |
+| radius_0.03 | 0.74 ± 0.38 | – | 0.99 / 0.31 / 0.92 |
+| radius_0.04 | 0.66 ± 0.39 | – | 0.93 / 0.21 / 0.84 |
+| radius_0.05 | 0.59 ± 0.34 | – | 0.82 / 0.20 / 0.76 |
+
+## 6. What got better and what didn't
+
+- **Grasping from randomised starts is fixed.** Every run grasps in 0.95–1.00 of episodes at L0–L3, against
+  0.26–0.31 for v6. At a 5 cm block radius, v6 grasped 0.05 of the time; every new run except `dense_L3_seed1`
+  (0.80) grasps at least 0.95.
 - **Success at L1/L2 goes from about 0.16 to about 0.97–0.99** for the two seeds without a collapse (seeds 1 and 2),
   and they lose nothing at L0 (1.00 deterministic). Stochastic success at L0 rose from 0.79 (v6) to 0.99–1.00.
 - **Seed 0 (L2) never places blue** (0.00 at every level, while grasp is 1.00). A diagnostic on 8 blue episodes
@@ -117,16 +160,23 @@ seeds at 5M steps, with no 10M rerun. That figure passed the gate only because r
   (zone jitter they never saw) and to 0.61–0.64 on OOD_wide. In the radius sweep, success falls past the 3 cm
   training range (0.94–0.96 at 4 cm, 0.86–0.91 at 5 cm) while grasp stays at 0.99, so the failures beyond the
   training range happen after the grasp: in the carry or the placement.
-- **Training on L3 (E3, one seed)** gives 0.91 deterministic on L3 and 0.74 on OOD_wide, the best OOD score of any
-  run. It gives up a little on L1/L2 (0.97 / 0.95) and its 5 cm radius score is 0.82. This is a single seed, so it
-  doesn't settle whether L3 training beats L2 training. Note that it used seed 0 like the collapsed L2 run but placed
-  every colour. With different ranges the same seed gives a different training run, so the collapse isn't fixed to
-  seed 0.
+- **Training on L3 (E3)** doesn't clearly beat training on L2. The two healthy L3 seeds score 0.91 / 0.88 on L3
+  (L2-trained healthy seeds: 0.86 / 0.90) and 0.74 / 0.64 on OOD_wide (L2: 0.61 / 0.64). They give up a little on
+  L1/L2 (0.89–0.97) and fall off sooner in the radius sweep (0.82 / 0.76 at 5 cm). L3 seed 0 used seed 0 like the
+  collapsed L2 run but placed every colour. With different ranges the same seed gives a different training run, so
+  the collapse isn't fixed to seed 0.
+- **`dense_L3_seed1` collapsed as well, on green.** It grasps 0.98–1.00 of the time at L0–L3 but never places green
+  (0.00 at L0–L3, 0.03 on OOD_wide) and places blue only 0.14–0.19 of the time, taking about 145 steps when it does.
+  The training log ends in the same state (success red 0.66, green 0, blue 0.22). At L0 its deterministic policy
+  places nothing (0.00) while the stochastic one places red 0.67 of the time; this hasn't been diagnosed. That makes
+  2 of the 6 runs stuck on a colour, so on this setup a collapse is a regular outcome, not a one-off. Nothing was
+  changed for it, for the same reason as above.
 - **Weakest colour:** blue is the slowest to place in every run (most steps to place, because it's the farthest
-  zone), and seed 0 never places it at all. Apart from seed 0, no colour is consistently the weakest: green is
-  weakest for seed 1 on L3 (0.80), and blue for seed 2 on OOD_wide (0.59).
+  zone), and L2 seed 0 never places it at all. L3 seed 1 never places green. Apart from the two collapsed runs, no
+  colour is consistently the weakest: green is weakest for L2 seed 1 on L3 (0.80) and L3 seed 2 on L3 (0.83), and
+  blue for L2 seed 2 on OOD_wide (0.59).
 
-## 6. Task 3 STOP condition
+## 7. Task 3 STOP condition
 
 Nothing to report: the scripted pinch grasped and lifted the block from all 12 randomised starts (4 corners at
 ±3 cm plus 8 random L2 starts), so no test is marked `xfail`.
