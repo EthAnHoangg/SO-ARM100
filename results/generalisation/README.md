@@ -192,6 +192,9 @@ Nothing to report: the scripted pinch grasped and lifted the block from all 12 r
   past the limit in about 37% of L2/L3 episodes (by up to 0.078 rad). The joint-limit constraint pushed it back inside
   within about 4 steps, a transient about the size of the normal start-up settling, so the effect on these results is
   likely small. But the first observation in those episodes was a pose the real arm cannot reach, and `wrist_flex`'s
-  effective range was about −0.1 to +0.021 rad rather than ±0.1. All six runs and their evaluations used the unclipped
-  starts; runs trained after the fix (including any SAC runs) use clipped starts, so they are not on exactly the same
-  start distribution.
+  effective range was about −0.1 to +0.021 rad rather than ±0.1. All six runs and their evaluations (including
+  OOD_wide, where about 43% of starts were past the limit) used the unclipped starts. The fix draws each arm joint
+  uniformly over the part of ready ± range inside its limits: the other three joints still get exactly ±0.1 rad, and
+  `wrist_flex` spreads evenly over −0.1 to +0.021 rad instead of piling onto the limit (plain clipping would have put
+  ~40% of starts exactly on it). L0 and the RNG stream are unchanged. Runs trained after the fix (including any SAC
+  runs) use these starts, so they are not on exactly the same start distribution as the six runs here.

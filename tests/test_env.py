@@ -397,6 +397,21 @@ def test_randomised_arm_pose_respects_joint_limits():
             assert lo <= env.data.joint(name).qpos[0] <= hi, (seed, name)
 
 
+def test_arm_noise_spreads_within_limits_instead_of_piling_at_them():
+    """Clipping put ~40% of wrist_flex starts exactly on its limit; sampling inside the reachable
+    part of the range spreads them out instead."""
+    env = ShelfSortEnv(**L2)
+    lo, hi = env.model.joint("wrist_flex").range
+    ready = env.READY_ARM_QPOS[3]
+    q = []
+    for seed in range(300):
+        env.reset(seed=seed)
+        q.append(env.data.joint("wrist_flex").qpos[0])
+    q = np.array(q)
+    assert np.mean(np.isclose(q, hi)) < 0.02
+    assert q.min() < ready - 0.09 and q.max() > hi - 0.005
+
+
 def test_randomised_arm_pose_within_range_and_ctrl_matches():
     env = ShelfSortEnv(**L2)
     env.reset(seed=3)

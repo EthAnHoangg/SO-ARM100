@@ -133,10 +133,16 @@ class ShelfSortEnv(gym.Env):
             block_offset = np.asarray(options["block_offset"], dtype=float)
         else:
             block_offset = scale * self.block_xy_range * block_noise
+        # Noise is drawn over the part of ready ± range that lies inside the joint limits. wrist_flex's
+        # ready angle is 0.021 rad under its limit: plain noise started it past the limit, and clipping
+        # piled ~40% of starts onto it. Joints with room on both sides get exactly ready ± range.
+        n = self.N_CONTROLLED_JOINTS
+        ready = self.READY_ARM_QPOS[:n]
+        half = scale * self.arm_qpos_range
+        low = np.maximum(ready - half, self._arm_joint_range[:n, 0])
+        high = np.minimum(ready + half, self._arm_joint_range[:n, 1])
         arm_qpos = self.READY_ARM_QPOS.copy()
-        arm_qpos[: self.N_CONTROLLED_JOINTS] += scale * self.arm_qpos_range * arm_noise
-        # wrist_flex's ready angle is 0.021 rad under its limit; unclipped noise starts it past the limit.
-        arm_qpos = np.clip(arm_qpos, self._arm_joint_range[:, 0], self._arm_joint_range[:, 1])
+        arm_qpos[:n] = low + (arm_noise + 1.0) / 2.0 * (high - low)
 
         ready_qpos = np.append(arm_qpos, self.READY_GRIPPER_QPOS)
         for name, qpos in zip(self.ALL_JOINT_NAMES, ready_qpos):
