@@ -14,21 +14,29 @@ def test_action_space_is_4d_box_in_unit_range():
     assert np.all(env.action_space.high == 1.0)
 
 
-def test_observation_space_is_21d_box():
+def test_observation_space_is_27d_box():
     env = ShelfSortEnv()
 
-    assert env.observation_space.shape == (21,)
+    assert env.observation_space.shape == (27,)
 
 
 @pytest.mark.parametrize("seed", [0, 1, 11])  # blue, green, red
-def test_observation_ends_with_active_shelf_position(seed):
+def test_observation_contains_active_shelf_position(seed):
     """The policy is told where to go, not which colour it holds: a colour one-hot let each
     colour be learned as a separate mode, and green's collapsed to never grasping."""
     env = ShelfSortEnv()
 
     obs, _ = env.reset(seed=seed)
 
-    np.testing.assert_allclose(obs[-3:], env.SHELF_ZONE_POS[env._active_category], atol=1e-6)
+    np.testing.assert_allclose(obs[18:21], env.active_zone_pos, atol=1e-6)
+
+
+def test_observation_ends_with_relative_vectors():
+    env = ShelfSortEnv(block_xy_range=0.03, arm_qpos_range=0.1, zone_xy_range=0.02)
+    obs, _ = env.reset(seed=5)
+    ee, block, target = obs[12:15], obs[15:18], obs[18:21]
+    np.testing.assert_allclose(obs[21:24], block - ee, atol=1e-6)
+    np.testing.assert_allclose(obs[24:27], target - block, atol=1e-6)
 
 
 def test_reset_returns_observation_matching_space():
@@ -72,10 +80,8 @@ def test_ee_converges_to_a_reachable_target_without_oscillating():
     assert np.linalg.norm(target - env.data.site(env.EE_SITE_NAME).xpos) < 0.01
 
 
-def test_scripted_pinch_grasps_and_lifts_the_block():
-    """The gripper must be physically able to pick the block up, or no reward can teach it to."""
-    env = ShelfSortEnv()
-    env.reset(seed=0)
+def _scripted_pinch(env):
+    """Top-down pinch from the current start: hover, re-aim, descend, close, lift. Returns the last info."""
     block = env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos.copy()
     ee = lambda: env.data.site(env.EE_SITE_NAME).xpos.copy()
 
@@ -99,7 +105,29 @@ def test_scripted_pinch_grasps_and_lifts_the_block():
         env.step(np.array([0.0, 0.0, 0.0, close], dtype=np.float32))
     for _ in range(15):
         _, _, _, _, info = env.step(np.array([0.0, 0.0, 0.5, close], dtype=np.float32))
+    return info
 
+
+def test_scripted_pinch_grasps_and_lifts_the_block():
+    """The gripper must be physically able to pick the block up, or no reward can teach it to."""
+    env = ShelfSortEnv()
+    env.reset(seed=0)
+
+    info = _scripted_pinch(env)
+
+    assert info["grasped"]
+    assert env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos[2] > 0.04
+
+
+CORNERS = [(dx, dy) for dx in (-0.03, 0.03) for dy in (-0.03, 0.03)]
+
+
+@pytest.mark.parametrize("seed", range(12))
+def test_scripted_pinch_works_from_randomised_starts(seed):
+    env = ShelfSortEnv(block_xy_range=0.03, arm_qpos_range=0.1)
+    options = {"block_offset": CORNERS[seed]} if seed < len(CORNERS) else None
+    env.reset(seed=seed, options=options)
+    info = _scripted_pinch(env)
     assert info["grasped"]
     assert env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos[2] > 0.04
 
@@ -334,3 +362,104 @@ def test_lift_term_is_capped():
     mujoco.mj_forward(env.model, env.data)
 
     assert env._lift() == env.LIFT_CAP
+
+
+L2 = dict(block_xy_range=0.03, arm_qpos_range=0.1)
+
+
+def test_zero_ranges_reproduce_fixed_reset():
+    env = ShelfSortEnv(block_xy_range=0.0, arm_qpos_range=0.0, zone_xy_range=0.0)
+    for seed in range(5):
+        env.reset(seed=seed)
+        np.testing.assert_allclose(env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos, env.SUPPLY_POS, atol=1e-6)
+        np.testing.assert_allclose(env.active_zone_pos, env.SHELF_ZONE_POS[env._active_category])
+
+
+def test_randomised_block_stays_within_range_and_varies():
+    env = ShelfSortEnv(**L2)
+    offsets = []
+    for seed in range(50):
+        env.reset(seed=seed)
+        offsets.append(env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos[:2] - env.SUPPLY_POS[:2])
+    offsets = np.array(offsets)
+    assert np.all(np.abs(offsets) <= 0.03 + 1e-9)
+    assert offsets.std(axis=0).min() > 0.01
+
+
+def test_randomised_arm_pose_respects_joint_limits():
+    """wrist_flex's ready angle sits 0.021 rad under its limit, so unclipped ±0.1 rad noise started
+    it past the limit in ~37% of episodes: an observation the real arm can never produce."""
+    env = ShelfSortEnv(**L2)
+    for seed in range(50):
+        env.reset(seed=seed)
+        for name in env.ARM_JOINT_NAMES:
+            lo, hi = env.model.joint(name).range
+            assert lo <= env.data.joint(name).qpos[0] <= hi, (seed, name)
+
+
+def test_arm_noise_spreads_within_limits_instead_of_piling_at_them():
+    """Clipping put ~40% of wrist_flex starts exactly on its limit; sampling inside the reachable
+    part of the range spreads them out instead."""
+    env = ShelfSortEnv(**L2)
+    lo, hi = env.model.joint("wrist_flex").range
+    ready = env.READY_ARM_QPOS[3]
+    q = []
+    for seed in range(300):
+        env.reset(seed=seed)
+        q.append(env.data.joint("wrist_flex").qpos[0])
+    q = np.array(q)
+    assert np.mean(np.isclose(q, hi)) < 0.02
+    assert q.min() < ready - 0.09 and q.max() > hi - 0.005
+
+
+def test_randomised_arm_pose_within_range_and_ctrl_matches():
+    env = ShelfSortEnv(**L2)
+    env.reset(seed=3)
+    q = np.array([env.data.joint(n).qpos[0] for n in env.ARM_JOINT_NAMES])
+    assert np.all(np.abs(q[:4] - env.READY_ARM_QPOS[:4]) <= 0.1 + 1e-9)
+    assert q[4] == env.READY_ARM_QPOS[4]
+    np.testing.assert_allclose(env._arm_ctrl_target, q)
+    np.testing.assert_allclose([env.data.actuator(n).ctrl[0] for n in env.ARM_JOINT_NAMES], q)
+
+
+def test_same_seed_gives_same_start():
+    a, b = ShelfSortEnv(**L2, zone_xy_range=0.02), ShelfSortEnv(**L2, zone_xy_range=0.02)
+    oa, _ = a.reset(seed=42)
+    ob, _ = b.reset(seed=42)
+    np.testing.assert_array_equal(oa, ob)
+
+
+def test_randomisation_scale_zero_disables_ranges():
+    env = ShelfSortEnv(**L2, zone_xy_range=0.02)
+    env.set_randomization_scale(0.0)
+    env.reset(seed=7)
+    np.testing.assert_allclose(env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos, env.SUPPLY_POS, atol=1e-6)
+    np.testing.assert_allclose(env.active_zone_pos, env.SHELF_ZONE_POS[env._active_category])
+
+
+def test_block_offset_option_overrides_random_draw():
+    env = ShelfSortEnv(**L2)
+    env.reset(seed=0, options={"block_offset": (0.04, -0.02)})
+    np.testing.assert_allclose(env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos[:2], env.SUPPLY_POS[:2] + [0.04, -0.02], atol=1e-6)
+
+
+def test_randomised_reset_rests_block_on_table():
+    env = ShelfSortEnv(**L2, zone_xy_range=0.02)
+    for seed in range(20):
+        env.reset(seed=seed)
+        for _ in range(10):
+            env.step(np.array([0.0, 0.0, 0.0, 1.0], dtype=np.float32))
+        z = env.data.body(env.BLOCK_BODY_NAMES[env._active_category]).xpos[2]
+        assert abs(z - env.BLOCK_REST_Z) < 0.002
+
+
+def test_success_uses_jittered_zone():
+    env = ShelfSortEnv(reward_mode="dense", zone_xy_range=0.02)
+    env.reset(seed=1)
+    assert not np.allclose(env.active_zone_pos, env.SHELF_ZONE_POS[env._active_category])
+    fj = env.data.joint(env.BLOCK_FREEJOINT_NAMES[env._active_category])
+    fj.qpos[:3] = [*env.active_zone_pos[:2], env.BLOCK_REST_Z]
+    fj.qvel[:] = 0.0
+    mujoco.mj_forward(env.model, env.data)
+    _, _, terminated, _, info = env.step(np.array([0.0, 0.0, 0.0, 1.0], dtype=np.float32))
+    assert info["success"] and terminated

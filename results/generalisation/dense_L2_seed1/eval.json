@@ -1,0 +1,317 @@
+[
+  {
+    "name": "L0",
+    "mode": "det",
+    "mean": 1.0,
+    "per_colour": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 38.0,
+      "green": 50.0,
+      "blue": 61.0
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L0",
+    "mode": "stoch",
+    "mean": 0.9930800784733368,
+    "per_colour": {
+      "red": 1.0,
+      "green": 0.9887640449438202,
+      "blue": 0.9904761904761905
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 42.094339622641506,
+      "green": 52.02272727272727,
+      "blue": 63.64423076923077
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L1",
+    "mode": "det",
+    "mean": 0.99625468164794,
+    "per_colour": {
+      "red": 1.0,
+      "green": 0.9887640449438202,
+      "blue": 1.0
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 41.15094339622642,
+      "green": 53.86363636363637,
+      "blue": 61.51428571428571
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L1",
+    "mode": "stoch",
+    "mean": 0.9930800784733368,
+    "per_colour": {
+      "red": 1.0,
+      "green": 0.9887640449438202,
+      "blue": 0.9904761904761905
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 44.84905660377358,
+      "green": 54.96590909090909,
+      "blue": 62.91346153846154
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L2",
+    "mode": "det",
+    "mean": 0.9873315363881402,
+    "per_colour": {
+      "red": 0.9905660377358491,
+      "green": 1.0,
+      "blue": 0.9714285714285714
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 42.44761904761905,
+      "green": 54.1123595505618,
+      "blue": 63.92156862745098
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L2",
+    "mode": "stoch",
+    "mean": 0.9873914345612459,
+    "per_colour": {
+      "red": 0.9716981132075472,
+      "green": 1.0,
+      "blue": 0.9904761904761905
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 45.61165048543689,
+      "green": 55.157303370786515,
+      "blue": 64.91346153846153
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L3",
+    "mode": "det",
+    "mean": 0.8631023888602858,
+    "per_colour": {
+      "red": 0.8867924528301887,
+      "green": 0.797752808988764,
+      "blue": 0.9047619047619048
+    },
+    "grasp": 0.9933333333333333,
+    "mean_steps_to_place": {
+      "red": 45.02127659574468,
+      "green": 62.11267605633803,
+      "blue": 65.3157894736842
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L3",
+    "mode": "stoch",
+    "mean": 0.8887489021472486,
+    "per_colour": {
+      "red": 0.8867924528301887,
+      "green": 0.8651685393258427,
+      "blue": 0.9142857142857143
+    },
+    "grasp": 0.9933333333333333,
+    "mean_steps_to_place": {
+      "red": 48.37234042553192,
+      "green": 59.02597402597402,
+      "blue": 65.17708333333333
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "OOD_wide",
+    "mode": "det",
+    "mean": 0.6050274084617947,
+    "per_colour": {
+      "red": 0.5849056603773585,
+      "green": 0.5730337078651685,
+      "blue": 0.6571428571428571
+    },
+    "grasp": 0.95,
+    "mean_steps_to_place": {
+      "red": 50.0,
+      "green": 63.21568627450981,
+      "blue": 82.3913043478261
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "OOD_wide",
+    "mode": "stoch",
+    "mean": 0.5816937049712119,
+    "per_colour": {
+      "red": 0.5754716981132075,
+      "green": 0.550561797752809,
+      "blue": 0.6190476190476191
+    },
+    "grasp": 0.96,
+    "mean_steps_to_place": {
+      "red": 60.57377049180328,
+      "green": 65.91836734693878,
+      "blue": 77.21538461538462
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.01",
+    "mode": "det",
+    "mean": 1.0,
+    "per_colour": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 40.9622641509434,
+      "green": 50.06741573033708,
+      "blue": 62.161904761904765
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.02",
+    "mode": "det",
+    "mean": 1.0,
+    "per_colour": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 41.24528301886792,
+      "green": 51.0,
+      "blue": 60.77142857142857
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.03",
+    "mode": "det",
+    "mean": 1.0,
+    "per_colour": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 42.75471698113208,
+      "green": 52.325842696629216,
+      "blue": 60.923809523809524
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.04",
+    "mode": "det",
+    "mean": 0.941675668217962,
+    "per_colour": {
+      "red": 0.9339622641509434,
+      "green": 0.9101123595505618,
+      "blue": 0.9809523809523809
+    },
+    "grasp": 0.9933333333333333,
+    "mean_steps_to_place": {
+      "red": 39.98989898989899,
+      "green": 60.39506172839506,
+      "blue": 66.57281553398059
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.05",
+    "mode": "det",
+    "mean": 0.8583155826106855,
+    "per_colour": {
+      "red": 0.9339622641509434,
+      "green": 0.8314606741573034,
+      "blue": 0.8095238095238095
+    },
+    "grasp": 0.99,
+    "mean_steps_to_place": {
+      "red": 46.75757575757576,
+      "green": 70.6891891891892,
+      "blue": 76.74117647058823
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  }
+]

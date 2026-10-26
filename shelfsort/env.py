@@ -63,17 +63,31 @@ class ShelfSortEnv(gym.Env):
     FIXED_JAW_BODY_NAME = "gripper"
     MOVING_JAW_BODY_NAME = "moving_jaw_so101_v1"
 
-    def __init__(self, scene_path=DEFAULT_SCENE_PATH, reward_mode="sparse"):
+    def __init__(
+        self,
+        scene_path=DEFAULT_SCENE_PATH,
+        reward_mode="sparse",
+        block_xy_range=0.0,
+        arm_qpos_range=0.0,
+        zone_xy_range=0.0,
+    ):
+        """Ranges are half-widths of uniform start-state noise: metres for the block and shelf zones,
+        radians for the first N_CONTROLLED_JOINTS arm joints. All zero gives the fixed start."""
         if reward_mode not in self.REWARD_MODES:
             raise ValueError(f"reward_mode must be one of {self.REWARD_MODES}, got {reward_mode!r}")
         self.reward_mode = reward_mode
+        self.block_xy_range = block_xy_range
+        self.arm_qpos_range = arm_qpos_range
+        self.zone_xy_range = zone_xy_range
+        self._randomization_scale = 1.0
         self.model = mujoco.MjModel.from_xml_path(str(scene_path))
         self.data = mujoco.MjData(self.model)
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float32)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(21,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(27,), dtype=np.float32)
 
         self._active_category = self.BLOCK_CATEGORIES[0]
+        self._zone_pos = {c: pos.copy() for c, pos in self.SHELF_ZONE_POS.items()}
         self._arm_ctrl_target = np.zeros(len(self.ARM_JOINT_NAMES))
         self._elapsed_steps = 0
         self._prev_reach_dist = 0.0
@@ -87,13 +101,50 @@ class ShelfSortEnv(gym.Env):
         self._arm_dof_adr = [self.model.joint(name).dofadr[0] for name in self.ARM_JOINT_NAMES]
         self._arm_joint_range = np.array([self.model.joint(name).range for name in self.ARM_JOINT_NAMES])
 
+    def set_randomization_scale(self, scale):
+        """Curriculum knob: multiplies every randomisation range from the next reset on."""
+        self._randomization_scale = float(np.clip(scale, 0.0, 1.0))
+
+    @property
+    def active_zone_pos(self):
+        """This episode's (possibly jittered) shelf zone for the active block."""
+        return self._zone_pos[self._active_category]
+
     def reset(self, seed=None, options=None):
+        """`options={"block_offset": (dx, dy)}` puts the block at that offset from SUPPLY_POS,
+        overriding the random draw and ignoring the randomisation scale."""
         super().reset(seed=seed)
         mujoco.mj_resetData(self.model, self.data)
 
         self._active_category = self.BLOCK_CATEGORIES[self.np_random.integers(len(self.BLOCK_CATEGORIES))]
 
-        ready_qpos = np.append(self.READY_ARM_QPOS, self.READY_GRIPPER_QPOS)
+        # Always draw every value, even for zero ranges, so the RNG stream doesn't depend on them.
+        scale = self._randomization_scale
+        zone_noise = self.np_random.uniform(-1.0, 1.0, size=(len(self.BLOCK_CATEGORIES), 2))
+        block_noise = self.np_random.uniform(-1.0, 1.0, size=2)
+        arm_noise = self.np_random.uniform(-1.0, 1.0, size=self.N_CONTROLLED_JOINTS)
+
+        self._zone_pos = {}
+        for category, noise in zip(self.BLOCK_CATEGORIES, zone_noise):
+            zone = self.SHELF_ZONE_POS[category].copy()
+            zone[:2] += scale * self.zone_xy_range * noise
+            self._zone_pos[category] = zone
+        if options is not None and "block_offset" in options:
+            block_offset = np.asarray(options["block_offset"], dtype=float)
+        else:
+            block_offset = scale * self.block_xy_range * block_noise
+        # Noise is drawn over the part of ready ± range that lies inside the joint limits. wrist_flex's
+        # ready angle is 0.021 rad under its limit: plain noise started it past the limit, and clipping
+        # piled ~40% of starts onto it. Joints with room on both sides get exactly ready ± range.
+        n = self.N_CONTROLLED_JOINTS
+        ready = self.READY_ARM_QPOS[:n]
+        half = scale * self.arm_qpos_range
+        low = np.maximum(ready - half, self._arm_joint_range[:n, 0])
+        high = np.minimum(ready + half, self._arm_joint_range[:n, 1])
+        arm_qpos = self.READY_ARM_QPOS.copy()
+        arm_qpos[:n] = low + (arm_noise + 1.0) / 2.0 * (high - low)
+
+        ready_qpos = np.append(arm_qpos, self.READY_GRIPPER_QPOS)
         for name, qpos in zip(self.ALL_JOINT_NAMES, ready_qpos):
             joint = self.data.joint(name)
             joint.qpos[0] = qpos
@@ -103,14 +154,17 @@ class ShelfSortEnv(gym.Env):
         staging = iter(self.STAGING_POSITIONS)
         for category in self.BLOCK_CATEGORIES:
             freejoint = self.data.joint(self.BLOCK_FREEJOINT_NAMES[category])
-            pos = self.SUPPLY_POS if category == self._active_category else next(staging)
+            if category == self._active_category:
+                pos = self.SUPPLY_POS + np.append(block_offset, 0.0)
+            else:
+                pos = next(staging)
             freejoint.qpos[:3] = pos
             freejoint.qpos[3:7] = [1.0, 0.0, 0.0, 0.0]
             freejoint.qvel[:] = 0.0
 
         mujoco.mj_forward(self.model, self.data)
 
-        self._arm_ctrl_target = self.READY_ARM_QPOS.copy()
+        self._arm_ctrl_target = arm_qpos
         self._elapsed_steps = 0
         self._ever_grasped = False
         self._prev_reach_dist, self._prev_transport_dist = self._distances()
@@ -176,7 +230,7 @@ class ShelfSortEnv(gym.Env):
 
         reach_dist, transport_dist = self._distances()
         block_pos = self.data.body(self.BLOCK_BODY_NAMES[self._active_category]).xpos
-        target_pos = self.SHELF_ZONE_POS[self._active_category]
+        target_pos = self.active_zone_pos
         xy_distance = np.linalg.norm(block_pos[:2] - target_pos[:2])
         grasped = self._is_grasped()
         resting = block_pos[2] < self.BLOCK_REST_Z + self.SUCCESS_Z_TOLERANCE
@@ -210,7 +264,7 @@ class ShelfSortEnv(gym.Env):
     def _distances(self):
         block_pos = self.data.body(self.BLOCK_BODY_NAMES[self._active_category]).xpos
         ee_pos = self.data.site(self.EE_SITE_NAME).xpos
-        target_pos = self.SHELF_ZONE_POS[self._active_category]
+        target_pos = self.active_zone_pos
         return float(np.linalg.norm(ee_pos - block_pos)), float(np.linalg.norm(block_pos - target_pos))
 
     def _lift(self):
@@ -226,7 +280,7 @@ class ShelfSortEnv(gym.Env):
         block to the zone and held it there instead of putting it down.
         """
         block_xy = self.data.body(self.BLOCK_BODY_NAMES[self._active_category]).xpos[:2]
-        xy_distance = np.linalg.norm(block_xy - self.SHELF_ZONE_POS[self._active_category][:2])
+        xy_distance = np.linalg.norm(block_xy - self.active_zone_pos[:2])
         desired = self.LIFT_CAP * np.clip((xy_distance - self.SUCCESS_XY_TOLERANCE) / self.LOWER_RAMP, 0.0, 1.0)
         return -abs(self._lift() - float(desired))
 
@@ -248,6 +302,7 @@ class ShelfSortEnv(gym.Env):
         # The active shelf position, not a colour one-hot: with a one-hot each colour was learned as
         # a separate mode and one (green) collapsed to never grasping. A target position lets a single
         # carry skill cover every colour.
-        target_pos = self.SHELF_ZONE_POS[self._active_category].astype(np.float32)
+        target_pos = self.active_zone_pos.astype(np.float32)
 
-        return np.concatenate([qpos, qvel, ee_pos, block_pos, target_pos])
+        # Relative vectors make the grasp and carry look the same wherever the block or zone starts.
+        return np.concatenate([qpos, qvel, ee_pos, block_pos, target_pos, block_pos - ee_pos, target_pos - block_pos])

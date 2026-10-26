@@ -1,0 +1,317 @@
+[
+  {
+    "name": "L0",
+    "mode": "det",
+    "mean": 1.0,
+    "per_colour": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 47.0,
+      "green": 63.0,
+      "blue": 68.0
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L0",
+    "mode": "stoch",
+    "mean": 0.9735216424213667,
+    "per_colour": {
+      "red": 0.9811320754716981,
+      "green": 0.9775280898876404,
+      "blue": 0.9619047619047619
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 48.50961538461539,
+      "green": 68.183908045977,
+      "blue": 72.32673267326733
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L1",
+    "mode": "det",
+    "mean": 0.9723203138933476,
+    "per_colour": {
+      "red": 1.0,
+      "green": 0.9550561797752809,
+      "blue": 0.9619047619047619
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 47.10377358490566,
+      "green": 65.31764705882352,
+      "blue": 70.3069306930693
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L1",
+    "mode": "stoch",
+    "mean": 0.9441298107823441,
+    "per_colour": {
+      "red": 0.9811320754716981,
+      "green": 0.898876404494382,
+      "blue": 0.9523809523809523
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 48.65384615384615,
+      "green": 69.8875,
+      "blue": 70.25
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L2",
+    "mode": "det",
+    "mean": 0.9491663049220819,
+    "per_colour": {
+      "red": 0.9339622641509434,
+      "green": 0.9325842696629213,
+      "blue": 0.9809523809523809
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 48.08080808080808,
+      "green": 66.10843373493977,
+      "blue": 72.79611650485437
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L2",
+    "mode": "stoch",
+    "mean": 0.9383812686971474,
+    "per_colour": {
+      "red": 0.9716981132075472,
+      "green": 0.9101123595505618,
+      "blue": 0.9333333333333333
+    },
+    "grasp": 0.9966666666666667,
+    "mean_steps_to_place": {
+      "red": 52.57281553398058,
+      "green": 67.9753086419753,
+      "blue": 76.41836734693878
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L3",
+    "mode": "det",
+    "mean": 0.9114220432007162,
+    "per_colour": {
+      "red": 0.9245283018867925,
+      "green": 0.8764044943820225,
+      "blue": 0.9333333333333333
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 51.724489795918366,
+      "green": 63.17948717948718,
+      "blue": 73.38775510204081
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "L3",
+    "mode": "stoch",
+    "mean": 0.8799670896554509,
+    "per_colour": {
+      "red": 0.9339622641509434,
+      "green": 0.8202247191011236,
+      "blue": 0.8857142857142857
+    },
+    "grasp": 0.9966666666666667,
+    "mean_steps_to_place": {
+      "red": 51.60606060606061,
+      "green": 67.16438356164383,
+      "blue": 74.33333333333333
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "OOD_wide",
+    "mode": "det",
+    "mean": 0.7352063290159537,
+    "per_colour": {
+      "red": 0.7358490566037735,
+      "green": 0.7078651685393258,
+      "blue": 0.7619047619047619
+    },
+    "grasp": 0.96,
+    "mean_steps_to_place": {
+      "red": 58.44871794871795,
+      "green": 71.80952380952381,
+      "blue": 81.8
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "OOD_wide",
+    "mode": "stoch",
+    "mean": 0.722717559923411,
+    "per_colour": {
+      "red": 0.6698113207547169,
+      "green": 0.7078651685393258,
+      "blue": 0.7904761904761904
+    },
+    "grasp": 0.9633333333333334,
+    "mean_steps_to_place": {
+      "red": 60.45070422535211,
+      "green": 71.25396825396825,
+      "blue": 85.12048192771084
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.01",
+    "mode": "det",
+    "mean": 0.9936807427373465,
+    "per_colour": {
+      "red": 0.9905660377358491,
+      "green": 1.0,
+      "blue": 0.9904761904761905
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 47.08571428571429,
+      "green": 62.21348314606742,
+      "blue": 69.8173076923077
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.02",
+    "mode": "det",
+    "mean": 0.9867308721241305,
+    "per_colour": {
+      "red": 1.0,
+      "green": 0.9887640449438202,
+      "blue": 0.9714285714285714
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 46.10377358490566,
+      "green": 63.56818181818182,
+      "blue": 68.5
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.03",
+    "mode": "det",
+    "mean": 0.9899054752987336,
+    "per_colour": {
+      "red": 1.0,
+      "green": 0.9887640449438202,
+      "blue": 0.9809523809523809
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 47.54716981132076,
+      "green": 64.85227272727273,
+      "blue": 74.46601941747574
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.04",
+    "mode": "det",
+    "mean": 0.9256529069121818,
+    "per_colour": {
+      "red": 0.9811320754716981,
+      "green": 0.9101123595505618,
+      "blue": 0.8857142857142857
+    },
+    "grasp": 1.0,
+    "mean_steps_to_place": {
+      "red": 57.06730769230769,
+      "green": 66.32098765432099,
+      "blue": 78.81720430107526
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  },
+  {
+    "name": "radius_0.05",
+    "mode": "det",
+    "mean": 0.8212187595694062,
+    "per_colour": {
+      "red": 0.6981132075471698,
+      "green": 0.898876404494382,
+      "blue": 0.8666666666666667
+    },
+    "grasp": 0.9466666666666667,
+    "mean_steps_to_place": {
+      "red": 53.95945945945946,
+      "green": 80.35,
+      "blue": 93.82417582417582
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    }
+  }
+]
