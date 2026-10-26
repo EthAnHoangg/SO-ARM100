@@ -19,10 +19,10 @@
     "grasp_rate": 1.0
   },
   "stochastic": {
-    "mean_of_colours": 0.018867924528301886,
+    "mean_of_colours": 0.0194685887923115,
     "per_colour": {
-      "red": 0.05660377358490566,
-      "green": 0.0,
+      "red": 0.04716981132075472,
+      "green": 0.011235955056179775,
       "blue": 0.0
     },
     "episodes_per_colour": {
@@ -31,10 +31,10 @@
       "blue": 105
     },
     "mean_steps_to_place": {
-      "red": 184.33333333333334,
-      "green": null,
+      "red": 87.4,
+      "green": 135.0,
       "blue": null
     },
-    "grasp_rate": 0.9666666666666667
+    "grasp_rate": 0.9933333333333333
   }
 }
