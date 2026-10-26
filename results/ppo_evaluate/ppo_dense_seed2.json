@@ -1,8 +1,8 @@
 {
   "deterministic": {
-    "mean_of_colours": 0.6666666666666666,
+    "mean_of_colours": 1.0,
     "per_colour": {
-      "red": 0.0,
+      "red": 1.0,
       "green": 1.0,
       "blue": 1.0
     },
@@ -12,18 +12,18 @@
       "blue": 105
     },
     "mean_steps_to_place": {
-      "red": null,
-      "green": 72.0,
-      "blue": 126.0
+      "red": 43.0,
+      "green": 62.0,
+      "blue": 97.0
     },
     "grasp_rate": 1.0
   },
   "stochastic": {
-    "mean_of_colours": 0.7189325337936744,
+    "mean_of_colours": 0.9043308398194978,
     "per_colour": {
-      "red": 0.839622641509434,
-      "green": 0.8314606741573034,
-      "blue": 0.4857142857142857
+      "red": 0.8773584905660378,
+      "green": 0.9213483146067416,
+      "blue": 0.9142857142857143
     },
     "episodes_per_colour": {
       "red": 106,
@@ -31,10 +31,10 @@
       "blue": 105
     },
     "mean_steps_to_place": {
-      "red": 75.70786516853933,
-      "green": 102.95945945945945,
-      "blue": 146.3921568627451
+      "red": 47.01075268817204,
+      "green": 73.28048780487805,
+      "blue": 103.92708333333333
     },
-    "grasp_rate": 0.9966666666666667
+    "grasp_rate": 0.9933333333333333
   }
 }
