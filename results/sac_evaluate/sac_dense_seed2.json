@@ -1,0 +1,40 @@
+{
+  "deterministic": {
+    "mean_of_colours": 1.0,
+    "per_colour": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    },
+    "mean_steps_to_place": {
+      "red": 39.0,
+      "green": 50.0,
+      "blue": 63.0
+    },
+    "grasp_rate": 1.0
+  },
+  "stochastic": {
+    "mean_of_colours": 0.9873614854746929,
+    "per_colour": {
+      "red": 0.9811320754716981,
+      "green": 1.0,
+      "blue": 0.9809523809523809
+    },
+    "episodes_per_colour": {
+      "red": 106,
+      "green": 89,
+      "blue": 105
+    },
+    "mean_steps_to_place": {
+      "red": 39.125,
+      "green": 53.550561797752806,
+      "blue": 62.62135922330097
+    },
+    "grasp_rate": 1.0
+  }
+}
